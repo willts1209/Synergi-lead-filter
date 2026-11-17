@@ -1,4 +1,4 @@
-import csv, re, threading, queue
+import csv, re, threading, queue, sys, traceback, os, datetime
 from pathlib import Path
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
@@ -141,6 +141,35 @@ class App:
             pass
         self.root.after(100, self.poll)
 
+def log(message):
+    path = Path.home() / "SynergiLeadFilter-startup.log"
+    with open(path, "a", encoding="utf-8") as handle:
+        handle.write(f"{datetime.datetime.now().isoformat()} {message}\\n")
+    return path
+
 if __name__ == "__main__":
-    root = tk.Tk()
-    App(root)
+    try:
+        log("Application started; frozen=" + str(getattr(sys, "frozen", False)))
+        if "--self-test" in sys.argv:
+            log("Self-test OK; tkinter version=" + str(tk.TkVersion))
+            print("SELF TEST OK", flush=True)
+            sys.exit(0)
+        log("Creating tkinter root")
+        root = tk.Tk()
+        log("Creating app interface")
+        App(root)
+        log("Entering mainloop")
+        root.mainloop()
+        log("Mainloop exited")
+    except BaseException:
+        details = traceback.format_exc()
+        try:
+            log("FATAL ERROR\\n" + details)
+        except Exception:
+            pass
+        print(details, file=sys.stderr, flush=True)
+        try:
+            messagebox.showerror("Synergi Lead Filter startup error", details)
+        except Exception:
+            pass
+        sys.exit(1)
