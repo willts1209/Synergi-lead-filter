@@ -16,10 +16,18 @@ jobs:
       - name: Install PyInstaller on GitHub runner
         run: python -m pip install pyinstaller==6.16.0
       - name: Compile standalone Windows EXE
-        run: python -m PyInstaller --noconfirm --clean --onefile --windowed --name SynergiLeadFilter synergi_lead_filter.py
+        run: python -m PyInstaller --noconfirm --clean --onedir --windowed --name SynergiLeadFilter synergi_lead_filter.py
+      - name: Compile diagnostic console EXE
+        run: python -m PyInstaller --noconfirm --clean --onefile --console --name SynergiLeadFilter-Debug synergi_lead_filter.py
       - name: Upload EXE
         uses: actions/upload-artifact@v4
         with:
           name: SynergiLeadFilter-Windows
-          path: dist/SynergiLeadFilter.exe
+          path: dist/SynergiLeadFilter/
+          if-no-files-found: error
+      - name: Upload diagnostic EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: SynergiLeadFilter-Debug
+          path: dist/SynergiLeadFilter-Debug.exe
           if-no-files-found: error
