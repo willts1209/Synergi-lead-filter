@@ -1,0 +1,25 @@
+name: Build portable Windows EXE
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install PyInstaller on GitHub runner
+        run: python -m pip install pyinstaller==6.16.0
+      - name: Compile standalone Windows EXE
+        run: python -m PyInstaller --noconfirm --clean --onefile --windowed --name SynergiLeadFilter synergi_lead_filter.py
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: SynergiLeadFilter-Windows
+          path: dist/SynergiLeadFilter.exe
+          if-no-files-found: error
